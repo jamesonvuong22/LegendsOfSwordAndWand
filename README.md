@@ -27,4 +27,3 @@
 - `CampaignModuleMain`
 - `DatabaseSmokeTestMain`
 
-> Note: This is a Deliverable 1 starter. You will refactor and extend in Deliverables 2–3.
