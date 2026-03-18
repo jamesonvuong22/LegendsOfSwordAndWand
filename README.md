@@ -1,29 +1,31 @@
-# Legends of Sword and Wand (Starter – Deliverable 1)
+# Legends of Sword and Wand - Deliverable 2 Update
 
-## Import (easy)
-### IntelliJ IDEA
-1. File → Open → select this folder (`java_starter`)
-2. It will auto-detect Maven. Wait for dependencies to download.
-3. Run any `*Main` class under `lowsw` packages.
+This project is a Deliverable 2 implementation update for **Legends of Sword and Wand**.
 
-### Eclipse
-1. File → Import → Maven → Existing Maven Projects
-2. Select this folder (`java_starter`)
-3. Right-click project → Run As → Java Application (choose a `*Main` class)
+## What is included
+- All use-case flows implemented in service/controller form
+- 6 design patterns integrated into the codebase
+- 12 JUnit tests matching the Deliverable 2 test table
+- Simple runnable module mains for auth, battle, campaign, inn, PvP, and DB smoke test
 
-## Run (CLI)
-- `mvn test`
-- `mvn -q exec:java` (optional if you add exec plugin)
-- Or run the main classes from your IDE.
+## Patterns used
+1. Factory - hero creation
+2. Strategy - damage calculation
+3. State - battle phase handling
+4. Observer - battle state notifications
+5. Decorator - temporary hero buffs
+6. Singleton - DB connection provider
 
-## Database
-1. Create a MySQL schema (e.g., `lowsw`)
-2. Run `schema.sql` (in the root pack)
-3. Edit `src/main/resources/db.properties`
+## Import into Eclipse
+1. File -> Import -> Maven -> Existing Maven Projects
+2. Select this folder
+3. Finish
+4. Run tests or any `*Main` class
 
-## Modules (each has a runnable main as required)
-- `ProfileModuleMain`
-- `BattleModuleMain`
-- `CampaignModuleMain`
-- `DatabaseSmokeTestMain`
-
+## Main classes
+- `lowsw.ProfileModuleMain`
+- `lowsw.BattleModuleMain`
+- `lowsw.CampaignModuleMain`
+- `lowsw.InnModuleMain`
+- `lowsw.PvPModuleMain`
+- `lowsw.DatabaseSmokeTestMain`
