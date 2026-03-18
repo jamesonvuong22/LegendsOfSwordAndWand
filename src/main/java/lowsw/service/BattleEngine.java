@@ -1,51 +1,66 @@
 package lowsw.service;
 
-import lowsw.domain.Hero;
-import lowsw.domain.Party;
+import java.util.ArrayList;
+import java.util.List;
 
-// With the use of AI
+import lowsw.domain.Action;
+import lowsw.domain.ActionType;
+import lowsw.domain.Hero;
+import lowsw.domain.IHero;
+import lowsw.domain.Party;
+import lowsw.domain.ShieldedHero;
+
 public class BattleEngine implements IBattleService {
+    private final DamageStrategy damageStrategy;
+    private final List<BattleObserver> observers = new ArrayList<>();
+
+    public BattleEngine(DamageStrategy damageStrategy) {
+        this.damageStrategy = damageStrategy;
+    }
+
+    public void addObserver(BattleObserver observer) { observers.add(observer); }
+    private void notifyObservers(BattleState state) { observers.forEach(o -> o.onBattleStateChanged(state)); }
 
     @Override
-    public BattleState initBattle(Party a, Party b) {
-        if (a.getHeroes().isEmpty() || b.getHeroes().isEmpty()) {
-            throw new IllegalArgumentException("Both parties must have at least 1 hero");
+    public BattleState initBattle(Party player, Party enemy) {
+        if (player.getHeroes().isEmpty() || enemy.getHeroes().isEmpty()) {
+            throw new IllegalArgumentException("Both parties need at least one hero");
         }
-        return new BattleState(a, b);
+        BattleState state = new BattleState(player, enemy);
+        notifyObservers(state);
+        return state;
     }
 
     @Override
     public BattleState applyAction(BattleState state, Action action) {
         if (state.isFinished()) return state;
-
-        Party attackerParty = state.getA();
-        Party targetParty = state.getB();
-
-        // For Deliverable 1: attackerIndex refers to party A, targetIndex refers to party B.
-        // You will generalize this in Deliverables 2–3.
-        Hero attacker = attackerParty.getHeroes().get(action.attackerIndex());
-        Hero target = targetParty.getHeroes().get(action.targetIndex());
+        Hero actor = state.getPlayerParty().getHero(action.actorIndex());
+        Hero target = state.getEnemyParty().getHero(action.targetIndex());
 
         switch (action.type()) {
             case ATTACK -> {
-                int dmg = Math.max(0, attacker.getAtk() - target.getDef());
-                target.setHp(target.getHp() - dmg);
+                int damage = damageStrategy.computeDamage(actor, target);
+                target.setHp(target.getHp() - damage);
             }
             case DEFEND -> {
-                attacker.setHp(attacker.getHp() + 10);
-                attacker.setMana(attacker.getMana() + 5);
+                IHero shielded = new ShieldedHero(actor);
+                actor.setHp(actor.getHp() + 10);
+                actor.setMana(actor.getMana() + 5);
+                actor.setHp(actor.getHp());
+                int shieldValue = shielded.getDefensePower();
+                if (shieldValue < 0) throw new IllegalStateException("Invalid shield");
             }
-            case WAIT -> {
-                // In full version: unit moves to end of queue FIFO. Here we keep it as a no-op.
+            case WAIT -> actor.setMana(actor.getMana() + 2);
+            case CAST -> {
+                if (actor.getMana() < actor.spellCost()) throw new IllegalStateException("Not enough mana");
+                actor.setMana(actor.getMana() - actor.spellCost());
+                target.setHp(target.getHp() - actor.spellDamage());
             }
         }
 
-        boolean allDeadB = targetParty.getHeroes().stream().allMatch(h -> h.getHp() <= 0);
-        boolean allDeadA = attackerParty.getHeroes().stream().allMatch(h -> h.getHp() <= 0);
-
-        if (allDeadB) state.finish("A_WINS");
-        else if (allDeadA) state.finish("B_WINS");
-
+        if (state.getEnemyParty().isDefeated()) state.finish("PLAYER_WINS");
+        if (state.getPlayerParty().isDefeated()) state.finish("ENEMY_WINS");
+        notifyObservers(state);
         return state;
     }
 }
