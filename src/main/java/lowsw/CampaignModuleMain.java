@@ -1,23 +1,17 @@
 package lowsw;
 
-import lowsw.persistence.*;
-import lowsw.service.CampaignState;
+import lowsw.domain.ClassType;
+import lowsw.domain.User;
+import lowsw.persistence.InMemoryCampaignRepository;
+import lowsw.service.CampaignService;
+import lowsw.service.DefaultHeroFactory;
 
-// With the use of AI
 public class CampaignModuleMain {
     public static void main(String[] args) {
-        // Minimal DB save/load demo for Deliverable 1
-        Db db = new Db(new DbConfig());
-        ICampaignRepository repo = new MySqlCampaignRepository(db);
-
-        long userId = 1L;
-        long partyId = 1L;
-
-        CampaignState state = new CampaignState(userId, partyId, 1, "BATTLE");
-        repo.save(state);
-        System.out.println("Saved campaign: room=" + state.getRoomNumber());
-
-        CampaignState loaded = repo.loadLatest(userId);
-        System.out.println("Loaded campaign: " + (loaded == null ? "none" : ("room=" + loaded.getRoomNumber() + ", last=" + loaded.getLastRoomType())));
+        CampaignService campaignService = new CampaignService(new InMemoryCampaignRepository(), new DefaultHeroFactory());
+        User user = new User(1, "jameson", "HASH::secret");
+        var campaign = campaignService.startNew(user, ClassType.WARRIOR);
+        campaignService.nextRoom(campaign, "INN");
+        System.out.println("Room: " + campaign.getRoomNumber() + ", last room=" + campaign.getLastRoomType());
     }
 }
