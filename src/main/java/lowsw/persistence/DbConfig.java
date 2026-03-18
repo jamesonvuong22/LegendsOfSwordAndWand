@@ -4,20 +4,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-// With the use of AI
 public class DbConfig {
-    private final Properties props = new Properties();
-
+    private final Properties properties = new Properties();
     public DbConfig() {
-        try (InputStream in = DbConfig.class.getClassLoader().getResourceAsStream("db.properties")) {
-            if (in == null) throw new IllegalStateException("db.properties not found");
-            props.load(in);
+        try (InputStream input = DbConfig.class.getClassLoader().getResourceAsStream("db.properties")) {
+            if (input != null) properties.load(input);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
-    public String url() { return props.getProperty("db.url"); }
-    public String user() { return props.getProperty("db.user"); }
-    public String password() { return props.getProperty("db.password"); }
+    public String url() { return properties.getProperty("db.url", "jdbc:mysql://localhost:3306/lowsw"); }
+    public String user() { return properties.getProperty("db.user", "root"); }
+    public String password() { return properties.getProperty("db.password", "CHANGE_ME"); }
 }
