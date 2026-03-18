@@ -9,7 +9,6 @@ import lowsw.domain.*;
 import lowsw.persistence.*;
 import lowsw.service.*;
 
-// With the use of AI
 public class Deliverable2Test {
     private AuthService authService;
     private CampaignService campaignService;
