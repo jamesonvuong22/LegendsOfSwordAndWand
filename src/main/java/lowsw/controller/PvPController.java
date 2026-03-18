@@ -5,7 +5,6 @@ import lowsw.domain.PvPInvitation;
 import lowsw.service.BattleState;
 import lowsw.service.PvPService;
 
-// With the use of AI
 public class PvPController {
     private final PvPService pvpService;
     public PvPController(PvPService pvpService) { this.pvpService = pvpService; }
