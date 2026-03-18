@@ -2,27 +2,23 @@ package lowsw.service;
 
 import lowsw.domain.Party;
 
-// With the use of AI
 public class BattleState {
-    private final Party a;
-    private final Party b;
+    private final Party playerParty;
+    private final Party enemyParty;
     private boolean finished;
-    private String result; // "A_WINS" / "B_WINS" / null
+    private String result;
+    private BattlePhase phase;
 
-    public BattleState(Party a, Party b) {
-        this.a = a;
-        this.b = b;
-        this.finished = false;
-        this.result = null;
+    public BattleState(Party playerParty, Party enemyParty) {
+        this.playerParty = playerParty;
+        this.enemyParty = enemyParty;
+        this.phase = new ActiveBattlePhase();
     }
 
-    public Party getA() { return a; }
-    public Party getB() { return b; }
+    public Party getPlayerParty() { return playerParty; }
+    public Party getEnemyParty() { return enemyParty; }
     public boolean isFinished() { return finished; }
     public String getResult() { return result; }
-
-    public void finish(String result) {
-        this.finished = true;
-        this.result = result;
-    }
+    public BattlePhase getPhase() { return phase; }
+    public void finish(String result) { this.finished = true; this.result = result; this.phase = new FinishedBattlePhase(); }
 }
