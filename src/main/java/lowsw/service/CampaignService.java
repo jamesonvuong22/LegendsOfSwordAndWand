@@ -4,13 +4,13 @@ import lowsw.domain.CampaignState;
 import lowsw.domain.ClassType;
 import lowsw.domain.Party;
 import lowsw.domain.User;
-import lowsw.persistence.CampaignRepository;
+import lowsw.persistence.ICampaignRepository;
 
 public class CampaignService {
-    private final CampaignRepository campaignRepository;
+    private final ICampaignRepository campaignRepository;
     private final HeroFactory heroFactory;
 
-    public CampaignService(CampaignRepository campaignRepository, HeroFactory heroFactory) {
+    public CampaignService(ICampaignRepository campaignRepository, HeroFactory heroFactory) {
         this.campaignRepository = campaignRepository;
         this.heroFactory = heroFactory;
     }
@@ -18,7 +18,16 @@ public class CampaignService {
     public CampaignState startNew(User user, ClassType classType) {
         Party party = new Party(1000);
         party.addHero(heroFactory.createHero(classType, user.getUsername() + "Hero", 1));
-        CampaignState state = new CampaignState(user.getId(), user.getUsername(), party, 1, "BATTLE", true);
+
+        CampaignState state = new CampaignState(
+                user.getId(),
+                user.getUsername(),
+                party,
+                1,
+                "BATTLE",
+                true
+        );
+
         campaignRepository.save(state);
         return state;
     }
