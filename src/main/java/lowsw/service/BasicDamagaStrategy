@@ -1,0 +1,12 @@
+package lowsw.service;
+
+import lowsw.domain.IHero;
+
+public class BasicDamageStrategy implements DamageStrategy {
+
+    @Override
+    public int computeDamage(IHero attacker, IHero defender) {
+        int damage = attacker.getAttackPower() - defender.getDefensePower();
+        return Math.max(damage, 0);
+    }
+}
