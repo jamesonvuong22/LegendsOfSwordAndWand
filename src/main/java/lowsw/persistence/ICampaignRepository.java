@@ -1,6 +1,6 @@
 package lowsw.persistence;
 
-import lowsw.service.CampaignState;
+import lowsw.domain.CampaignState;
 
 // With the use of AI
 public interface ICampaignRepository {
