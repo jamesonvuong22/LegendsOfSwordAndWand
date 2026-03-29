@@ -8,10 +8,19 @@ import lowsw.service.DefaultHeroFactory;
 
 public class CampaignModuleMain {
     public static void main(String[] args) {
-        CampaignService campaignService = new CampaignService(new InMemoryCampaignRepository(), new DefaultHeroFactory());
+        System.out.println("=== Campaign Module Demo ===");
+
+        CampaignService campaignService =
+                new CampaignService(new InMemoryCampaignRepository(), new DefaultHeroFactory());
+
         User user = new User(1, "jameson", "HASH::secret");
+
         var campaign = campaignService.startNew(user, ClassType.WARRIOR);
+        System.out.println("Campaign started successfully.");
+
         campaignService.nextRoom(campaign, "INN");
-        System.out.println("Room: " + campaign.getRoomNumber() + ", last room=" + campaign.getLastRoomType());
+
+        System.out.println("Current room: " + campaign.getRoomNumber());
+        System.out.println("Last room type: " + campaign.getLastRoomType());
     }
 }
