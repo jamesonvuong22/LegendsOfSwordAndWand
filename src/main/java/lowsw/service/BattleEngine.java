@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lowsw.domain.Action;
-import lowsw.domain.ActionType;
 import lowsw.domain.Hero;
 import lowsw.domain.IHero;
 import lowsw.domain.Party;
@@ -18,8 +17,13 @@ public class BattleEngine implements IBattleService {
         this.damageStrategy = damageStrategy;
     }
 
-    public void addObserver(BattleObserver observer) { observers.add(observer); }
-    private void notifyObservers(BattleState state) { observers.forEach(o -> o.onBattleStateChanged(state)); }
+    public void addObserver(BattleObserver observer) {
+        observers.add(observer);
+    }
+
+    private void notifyObservers(BattleState state) {
+        observers.forEach(o -> o.onBattleStateChanged(state));
+    }
 
     @Override
     public BattleState initBattle(Party player, Party enemy) {
@@ -33,7 +37,10 @@ public class BattleEngine implements IBattleService {
 
     @Override
     public BattleState applyAction(BattleState state, Action action) {
-        if (state.isFinished()) return state;
+        if (state.isFinished()) {
+            return state;
+        }
+
         Hero actor = state.getPlayerParty().getHero(action.actorIndex());
         Hero target = state.getEnemyParty().getHero(action.targetIndex());
 
@@ -46,20 +53,29 @@ public class BattleEngine implements IBattleService {
                 IHero shielded = new ShieldedHero(actor);
                 actor.setHp(actor.getHp() + 10);
                 actor.setMana(actor.getMana() + 5);
-                actor.setHp(actor.getHp());
+
                 int shieldValue = shielded.getDefensePower();
-                if (shieldValue < 0) throw new IllegalStateException("Invalid shield");
+                if (shieldValue < 0) {
+                    throw new IllegalStateException("Invalid shield");
+                }
             }
             case WAIT -> actor.setMana(actor.getMana() + 2);
             case CAST -> {
-                if (actor.getMana() < actor.spellCost()) throw new IllegalStateException("Not enough mana");
+                if (actor.getMana() < actor.spellCost()) {
+                    throw new IllegalStateException("Not enough mana");
+                }
                 actor.setMana(actor.getMana() - actor.spellCost());
                 target.setHp(target.getHp() - actor.spellDamage());
             }
         }
 
-        if (state.getEnemyParty().isDefeated()) state.finish("PLAYER_WINS");
-        if (state.getPlayerParty().isDefeated()) state.finish("ENEMY_WINS");
+        if (state.getEnemyParty().isDefeated()) {
+            state.finish("PLAYER_WINS");
+        }
+        if (state.getPlayerParty().isDefeated()) {
+            state.finish("ENEMY_WINS");
+        }
+
         notifyObservers(state);
         return state;
     }
