@@ -1,7 +1,9 @@
 package lowsw.controller;
 
+import lowsw.domain.Action;
 import lowsw.domain.Party;
-import lowsw.service.*;
+import lowsw.service.BattleState;
+import lowsw.service.IBattleService;
 
 // With the use of AI
 public class BattleController {
