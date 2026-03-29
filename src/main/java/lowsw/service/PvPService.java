@@ -6,7 +6,10 @@ import lowsw.persistence.PvPRepository;
 
 public class PvPService {
     private final PvPRepository pvpRepository;
-    public PvPService(PvPRepository pvpRepository) { this.pvpRepository = pvpRepository; }
+
+    public PvPService(PvPRepository pvpRepository) {
+        this.pvpRepository = pvpRepository;
+    }
 
     public PvPInvitation sendInvitation(String challenger, String opponent) {
         return pvpRepository.createInvite(challenger, opponent);
