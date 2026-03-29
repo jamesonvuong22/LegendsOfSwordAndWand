@@ -15,10 +15,29 @@ public class BattleState {
         this.phase = new ActiveBattlePhase();
     }
 
-    public Party getPlayerParty() { return playerParty; }
-    public Party getEnemyParty() { return enemyParty; }
-    public boolean isFinished() { return finished; }
-    public String getResult() { return result; }
-    public BattlePhase getPhase() { return phase; }
-    public void finish(String result) { this.finished = true; this.result = result; this.phase = new FinishedBattlePhase(); }
+    public Party getPlayerParty() {
+        return playerParty;
+    }
+
+    public Party getEnemyParty() {
+        return enemyParty;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public BattlePhase getPhase() {
+        return phase;
+    }
+
+    public void finish(String result) {
+        this.finished = true;
+        this.result = result;
+        this.phase = new FinishedBattlePhase();
+    }
 }
