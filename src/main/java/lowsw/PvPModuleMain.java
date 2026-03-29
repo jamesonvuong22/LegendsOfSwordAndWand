@@ -8,16 +8,28 @@ import lowsw.service.PvPService;
 
 public class PvPModuleMain {
     public static void main(String[] args) {
+        System.out.println("=== PvP Module Demo ===");
+
         PvPService pvpService = new PvPService(new InMemoryPvPRepository());
+
         var invite = pvpService.sendInvitation("jameson", "dave");
+        System.out.println("Invitation sent from jameson to dave.");
+
         pvpService.acceptInvitation(invite.getId());
+        System.out.println("Invitation accepted.");
 
         DefaultHeroFactory factory = new DefaultHeroFactory();
-        Party a = new Party(0); a.addHero(factory.createHero(ClassType.ORDER, "A", 1));
-        Party b = new Party(0); b.addHero(factory.createHero(ClassType.CHAOS, "B", 1));
-        var state = pvpService.startBattle(a, b);
+
+        Party challengerParty = new Party(0);
+        challengerParty.addHero(factory.createHero(ClassType.ORDER, "Knight", 1));
+
+        Party opponentParty = new Party(0);
+        opponentParty.addHero(factory.createHero(ClassType.CHAOS, "Goblin", 1));
+
+        var state = pvpService.startBattle(challengerParty, opponentParty);
+
         System.out.println("PvP invite status: " + invite.getStatus());
         System.out.println("PvP battle phase: " + state.getPhase().name());
+        System.out.println("PvP battle started successfully.");
     }
 }
-
