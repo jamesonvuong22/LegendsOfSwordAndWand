@@ -5,9 +5,24 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import lowsw.domain.*;
-import lowsw.persistence.*;
-import lowsw.service.*;
+import lowsw.domain.Action;
+import lowsw.domain.CampaignState;
+import lowsw.domain.ClassType;
+import lowsw.domain.Hero;
+import lowsw.domain.Party;
+import lowsw.domain.User;
+import lowsw.persistence.InMemoryCampaignRepository;
+import lowsw.persistence.InMemoryPvPRepository;
+import lowsw.persistence.InMemoryUserRepository;
+import lowsw.service.ActionType;
+import lowsw.service.AuthService;
+import lowsw.service.BasicDamageStrategy;
+import lowsw.service.BattleEngine;
+import lowsw.service.BattleState;
+import lowsw.service.CampaignService;
+import lowsw.service.DefaultHeroFactory;
+import lowsw.service.InnService;
+import lowsw.service.PvPService;
 
 public class Deliverable2Test {
     private AuthService authService;
@@ -21,7 +36,7 @@ public class Deliverable2Test {
         authService = new AuthService(new InMemoryUserRepository());
         heroFactory = new DefaultHeroFactory();
         campaignService = new CampaignService(new InMemoryCampaignRepository(), heroFactory);
-        innService = new InnService(heroFactory);
+        innService = new InnService();
         pvpService = new PvPService(new InMemoryPvPRepository());
     }
 
@@ -45,52 +60,75 @@ public class Deliverable2Test {
 
     @Test
     void attackReducesEnemyHp() {
-        Party a = new Party(0); a.addHero(heroFactory.createHero(ClassType.ORDER, "A", 1));
-        Party b = new Party(0); b.addHero(heroFactory.createHero(ClassType.CHAOS, "B", 1));
+        Party a = new Party(0);
+        a.addHero(heroFactory.createHero(ClassType.ORDER, "A", 1));
+
+        Party b = new Party(0);
+        b.addHero(heroFactory.createHero(ClassType.CHAOS, "B", 1));
+
         BattleEngine engine = new BattleEngine(new BasicDamageStrategy());
         BattleState state = engine.initBattle(a, b);
+
         int before = b.getHero(0).getHp();
         engine.applyAction(state, new Action(0, 0, ActionType.ATTACK));
+
         assertTrue(b.getHero(0).getHp() < before);
     }
 
     @Test
     void defendIncreasesHpAndMana() {
-        Party a = new Party(0); a.addHero(heroFactory.createHero(ClassType.ORDER, "A", 1));
-        Party b = new Party(0); b.addHero(heroFactory.createHero(ClassType.CHAOS, "B", 1));
+        Party a = new Party(0);
+        a.addHero(heroFactory.createHero(ClassType.ORDER, "A", 1));
+
+        Party b = new Party(0);
+        b.addHero(heroFactory.createHero(ClassType.CHAOS, "B", 1));
+
         BattleEngine engine = new BattleEngine(new BasicDamageStrategy());
         BattleState state = engine.initBattle(a, b);
+
         int hp = a.getHero(0).getHp();
         int mana = a.getHero(0).getMana();
+
         engine.applyAction(state, new Action(0, 0, ActionType.DEFEND));
+
         assertTrue(a.getHero(0).getHp() > hp);
         assertTrue(a.getHero(0).getMana() > mana);
     }
 
     @Test
     void castRequiresEnoughMana() {
-        Party a = new Party(0); a.addHero(new Hero("Mage", ClassType.MAGE, 1, 40, 0, 20, 1));
-        Party b = new Party(0); b.addHero(heroFactory.createHero(ClassType.CHAOS, "B", 1));
+        Party a = new Party(0);
+        a.addHero(new Hero("Mage", ClassType.MAGE, 1, 40, 0, 20, 1));
+
+        Party b = new Party(0);
+        b.addHero(heroFactory.createHero(ClassType.CHAOS, "B", 1));
+
         BattleEngine engine = new BattleEngine(new BasicDamageStrategy());
         BattleState state = engine.initBattle(a, b);
-        assertThrows(IllegalStateException.class, () -> engine.applyAction(state, new Action(0, 0, ActionType.CAST)));
+
+        assertThrows(IllegalStateException.class,
+                () -> engine.applyAction(state, new Action(0, 0, ActionType.CAST)));
     }
 
     @Test
-    void innBreadCostsGoldAndHeals() {
+    void buyItemCostsGoldAndAddsToInventory() {
         CampaignState state = campaignService.startNew(new User(2, "dave", "HASH::pw"), ClassType.MAGE);
-        int hp = state.getParty().getHero(0).getHp();
         int gold = state.getParty().getGold();
-        state.getParty().getHero(0).setHp(hp - 10);
-        innService.buyBread(state);
-        assertEquals(gold - 200, state.getParty().getGold());
-        assertTrue(state.getParty().getHero(0).getHp() > hp - 10);
+
+        boolean bought = innService.buyItem(state, "Potion", 25);
+
+        assertTrue(bought);
+        assertEquals(gold - 25, state.getParty().getGold());
+        assertTrue(state.getInventory().contains("Potion"));
     }
 
     @Test
-    void recruitAddsHeroToParty() {
+    void recruitHeroAddsHeroToParty() {
         CampaignState state = campaignService.startNew(new User(2, "dave", "HASH::pw"), ClassType.MAGE);
-        innService.recruit(state, ClassType.ORDER, "Knight");
+
+        boolean recruited = innService.recruitHero(state, ClassType.ORDER, "Knight", 100);
+
+        assertTrue(recruited);
         assertEquals(2, state.getParty().getHeroes().size());
     }
 
@@ -106,6 +144,7 @@ public class Deliverable2Test {
         InMemoryCampaignRepository repo = new InMemoryCampaignRepository();
         CampaignService service = new CampaignService(repo, heroFactory);
         CampaignState state = service.startNew(new User(3, "kim", "HASH::pw"), ClassType.WARRIOR);
+
         assertNotNull(service.continueCampaign(state.getUserId()));
     }
 
