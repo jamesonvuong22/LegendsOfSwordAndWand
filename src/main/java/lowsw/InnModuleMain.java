@@ -1,23 +1,30 @@
 package lowsw;
 
+import lowsw.domain.CampaignState;
 import lowsw.domain.ClassType;
-import lowsw.domain.User;
-import lowsw.persistence.InMemoryCampaignRepository;
-import lowsw.service.CampaignService;
-import lowsw.service.DefaultHeroFactory;
+import lowsw.domain.Party;
 import lowsw.service.InnService;
 
-// With the use of AI
 public class InnModuleMain {
     public static void main(String[] args) {
-        DefaultHeroFactory factory = new DefaultHeroFactory();
-        CampaignService campaignService = new CampaignService(new InMemoryCampaignRepository(), factory);
-        var campaign = campaignService.startNew(new User(1, "dave", "HASH::pw"), ClassType.MAGE);
-        InnService innService = new InnService(factory);
-        innService.rest(campaign);
-        innService.buyBread(campaign);
-        innService.recruit(campaign, ClassType.ORDER, "Knight");
-        System.out.println("Party size after inn: " + campaign.getParty().getHeroes().size());
+        System.out.println("=== Inn Module Demo ===");
+
+        Party party = new Party(200);
+        CampaignState state = new CampaignState(1L, "jameson", party, 2, "INN", true);
+
+        InnService innService = new InnService();
+
+        innService.rest(state);
+        System.out.println("Party rested successfully.");
+
+        boolean bought = innService.buyItem(state, "Potion", 25);
+        System.out.println("Bought potion: " + bought);
+
+        boolean recruited = innService.recruitHero(state, ClassType.ORDER, "Knight", 100);
+        System.out.println("Recruited hero: " + recruited);
+
+        System.out.println("Gold remaining: " + state.getParty().getGold());
+        System.out.println("Inventory: " + state.getInventory());
+        System.out.println("Party size: " + state.getParty().getHeroes().size());
     }
 }
-
