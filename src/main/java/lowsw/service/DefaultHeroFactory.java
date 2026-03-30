@@ -4,6 +4,7 @@ import lowsw.domain.ClassType;
 import lowsw.domain.Hero;
 
 public class DefaultHeroFactory implements HeroFactory {
+
     @Override
     public Hero createHero(ClassType classType, String name, int level) {
         switch (classType) {
